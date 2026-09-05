@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Vendas - XPTO</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #080f1d;
+      --panel: #101a2b;
+      --panel-2: #0c1524;
+      --border: #1d304b;
+      --blue: #2196f3;
+      --blue-light: #60a5fa;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(33,150,243,.08), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1500px, 94%);
+      margin: auto;
+      padding: 28px 0 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 24px 28px;
+      margin-bottom: 22px;
+      background: linear-gradient(135deg, #111d31, #0c1627);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.25);
+    }
+
+    header h1 {
+      font-size: clamp(24px, 3vw, 34px);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status {
+      padding: 9px 15px;
+      border-radius: 30px;
+      color: var(--blue-light);
+      background: rgba(33,150,243,.10);
+      border: 1px solid rgba(33,150,243,.3);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .filter-description {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      border: 1px solid #28405f;
+      background: #101b2e;
+      color: #cbd5e1;
+      padding: 10px 17px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: .2s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--blue);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+      background: #1769aa;
+      border-color: #258bd3;
+      color: white;
+      box-shadow: 0 5px 20px rgba(33,150,243,.2);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: linear-gradient(145deg, #111c2d, #0d1727);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.2);
+    }
+
+    .kpi {
+      position: relative;
+      overflow: hidden;
+      padding: 23px;
+    }
+
+    .kpi::before {
+      content: "";
+      position: absolute;
+      right: -35px;
+      top: -35px;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: rgba(33,150,243,.09);
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-size: clamp(25px, 3vw, 36px);
+      font-weight: 800;
+      color: #f8fafc;
+    }
+
+    .kpi-footer {
+      margin-top: 9px;
+      color: var(--blue-light);
+      font-size: 11px;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: minmax(300px, .9fr) minmax(400px, 1.5fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .chart-card {
+      padding: 22px;
+      min-height: 430px;
+    }
+
+    .chart-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .chart-title h2 {
+      font-size: 17px;
+    }
+
+    .chart-title span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .chart-wrapper {
+      height: 345px;
+      position: relative;
+    }
+
+    .table-card {
+      padding: 22px;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .table-header h2 {
+      font-size: 18px;
+    }
+
+    .search {
+      min-width: 280px;
+      padding: 10px 13px;
+      border-radius: 9px;
+      border: 1px solid #263b57;
+      outline: none;
+      background: #091220;
+      color: white;
+    }
+
+    .search:focus {
+      border-color: var(--blue);
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1000px;
+    }
+
+    th {
+      padding: 13px;
+      background: #0a1423;
+      border-bottom: 1px solid #263852;
+      color: #94a3b8;
+      font-size: 11px;
+      text-align: left;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th:hover {
+      color: var(--blue-light);
+    }
+
+    td {
+      padding: 14px 13px;
+      border-bottom: 1px solid #1b2a40;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    tbody tr {
+      transition: .15s;
+    }
+
+    tbody tr:hover {
+      background: rgba(33,150,243,.06);
+    }
+
+    .payment {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .pix {
+      color: #4ade80;
+      background: rgba(34,197,94,.12);
+    }
+
+    .cartao {
+      color: #60a5fa;
+      background: rgba(59,130,246,.12);
+    }
+
+    .dinheiro {
+      color: #fbbf24;
+      background: rgba(245,158,11,.12);
+    }
+
+    .final-value {
+      color: #93c5fd;
+      font-weight: 800;
+    }
+
+    .discount {
+      color: #fbbf24;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 35px;
+      color: #64748b;
+    }
+
+    footer {
+      text-align: center;
+      color: #475569;
+      font-size: 11px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 950px) {
+      .kpis,
+      .charts {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 92%;
+        padding-top: 15px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+      }
+
+      .status {
+        width: 100%;
+        text-align: center;
+      }
+
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .buttons {
+        width: 100%;
+      }
+
+      .filter-btn {
+        flex: 1;
+      }
+
+      .search {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+    <div>
+      <h1>Dashboard de Vendas XPTO</h1>
+      <p>Análise interativa de faturamento, produtos e pagamentos</p>
+    </div>
+    <div class="status" id="status">● Todos os pagamentos</div>
+  </header>
+
+  <div class="filters">
+    <div class="filter-description">
+      Clique em uma forma de pagamento para filtrar os KPIs, gráfico de produtos e tabela.
+    </div>
+
+    <div class="buttons">
+      <button class="filter-btn active" data-payment="Todos">Todos</button>
+      <button class="filter-btn" data-payment="Dinheiro">Dinheiro</button>
+      <button class="filter-btn" data-payment="Cartão">Cartão</button>
+      <button class="filter-btn" data-payment="PIX">PIX</button>
+    </div>
+  </div>
+
+  <section class="kpis">
+
+    <div class="card kpi">
+      <div class="kpi-label">TOTAL FATURADO</div>
+      <div class="kpi-value" id="totalFaturado">R$ 0,00</div>
+      <div class="kpi-footer">Valor final das vendas</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="kpi-label">TICKET MÉDIO GERAL</div>
+      <div class="kpi-value" id="ticketMedio">R$ 0,00</div>
+      <div class="kpi-footer">Faturamento ÷ quantidade de vendas</div>
+    </div>
+
+    <div class="card kpi">
+      <div class="kpi-label">QUANTIDADE TOTAL DE VENDAS</div>
+      <div class="kpi-value" id="quantidadeVendas">0</div>
+      <div class="kpi-footer">Transações registradas</div>
+    </div>
+
+  </section>
+
+  <section class="charts">
+
+    <div class="card chart-card">
+      <div class="chart-title">
+        <h2>Faturamento por Pagamento</h2>
+        <span id="paymentChartLabel">Todos</span>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="paymentChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <div class="chart-title">
+        <h2>Vendas por Produto</h2>
+        <span>Quantidade de unidades</span>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="productChart"></canvas>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="card table-card">
+
+    <div class="table-header">
+      <h2>Resumo das Vendas</h2>
+
+      <input
+        type="text"
+        id="search"
+        class="search"
+        placeholder="Pesquisar ID, produto ou pagamento..."
+      >
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="id">ID ↕</th>
+            <th data-sort="date">Data ↕</th>
+            <th data-sort="product">Produto ↕</th>
+            <th data-sort="quantity">Qtd. ↕</th>
+            <th data-sort="unitPrice">Preço Unit. ↕</th>
+            <th data-sort="gross">Valor Bruto ↕</th>
+            <th data-sort="payment">Pagamento ↕</th>
+            <th data-sort="discount">Desconto ↕</th>
+            <th data-sort="final">Valor Final ↕</th>
+          </tr>
+        </thead>
+
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <footer>
+    XPTO • Dashboard de Vendas • Dados da planilha de vendas
+  </footer>
+
+</div>
+
+<script>
+
+  /*
+    Dados da aba "Vendas" da planilha XPTO.
+    Foi utilizado o segundo bloco da planilha, que contém
+    a política de descontos aplicada às vendas.
+  */
+
+  const sales = [
+    {
+      id: "VND-001",
+      date: "2026-06-01",
+      product: "Papel A4 (Resma 500 fls)",
+      quantity: 10,
+      unitPrice: 24.50,
+      gross: 245.00,
+      payment: "PIX",
+      discount: 0.05,
+      discountValue: 12.25,
+      final: 232.75
+    },
+    {
+      id: "VND-002",
+      date: "2026-06-02",
+      product: "Caneta Esferográfica Azul",
+      quantity: 100,
+      unitPrice: 1.20,
+      gross: 120.00,
+      payment: "Cartão",
+      discount: 0,
+      discountValue: 0,
+      final: 120.00
+    },
+    {
+      id: "VND-003",
+      date: "2026-06-03",
+      product: "Fita Adesiva Durex Larga",
+      quantity: 25,
+      unitPrice: 4.80,
+      gross: 120.00,
+      payment: "Dinheiro",
+      discount: 0.10,
+      discountValue: 12.00,
+      final: 108.00
+    },
+    {
+      id: "VND-004",
+      date: "2026-06-04",
+      product: "Lápis Preto HB nº 2",
+      quantity: 150,
+      unitPrice: 0.80,
+      gross: 120.00,
+      payment: "Cartão",
+      discount: 0,
+      discountValue: 0,
+      final: 120.00
+    },
+    {
+      id: "VND-005",
+      date: "2026-06-05",
+      product: "Bloco Autoadesivo (Post-it)",
+      quantity: 40,
+      unitPrice: 5.50,
+      gross: 220.00,
+      payment: "PIX",
+      discount: 0.05,
+      discountValue: 11.00,
+      final: 209.00
+    },
+    {
+      id: "VND-006",
+      date: "2026-06-06",
+      product: "Tesoura Multiuso Inox",
+      quantity: 15,
+      unitPrice: 12.00,
+      gross: 180.00,
+      payment: "Dinheiro",
+      discount: 0.10,
+      discountValue: 18.00,
+      final: 162.00
+    },
+    {
+      id: "VND-007",
+      date: "2026-06-07",
+      product: "Papel A4 (Resma 500 fls)",
+      quantity: 5,
+      unitPrice: 24.50,
+      gross: 122.50,
+      payment: "Cartão",
+      discount: 0,
+      discountValue: 0,
+      final: 122.50
+    },
+    {
+      id: "VND-008",
+      date: "2026-06-08",
+      product: "Caneta Esferográfica Azul",
+      quantity: 200,
+      unitPrice: 1.20,
+      gross: 240.00,
+      payment: "PIX",
+      discount: 0.05,
+      discountValue: 12.00,
+      final: 228.00
+    },
+    {
+      id: "VND-009",
+      date: "2026-06-09",
+      product: "Fita Adesiva Durex Larga",
+      quantity: 30,
+      unitPrice: 4.80,
+      gross: 144.00,
+      payment: "PIX",
+      discount: 0.05,
+      discountValue: 7.20,
+      final: 136.80
+    },
+    {
+      id: "VND-010",
+      date: "2026-06-10",
+      product: "Bloco Autoadesivo (Post-it)",
+      quantity: 20,
+      unitPrice: 5.50,
+      gross: 110.00,
+      payment: "Dinheiro",
+      discount: 0.10,
+      discountValue: 11.00,
+      final: 99.00
+    },
+    {
+      id: "VND-011",
+      date: "2026-06-11",
+      product: "Tesoura Multiuso Inox",
+      quantity: 2,
+      unitPrice: 12.00,
+      gross: 24.00,
+      payment: "Dinheiro",
+      discount: 0.10,
+      discountValue: 2.40,
+      final: 21.60
+    },
+    {
+      id: "VND-012",
+      date: "2026-06-12",
+      product: "Borracha Fabercastel",
+      quantity: 5,
+      unitPrice: 5.20,
+      gross: 26.00,
+      payment: "PIX",
+      discount: 0.05,
+      discountValue: 1.30,
+      final: 24.70
+    },
+    {
+      id: "VND-013",
+      date: "2026-06-13",
+      product: "Caderno 120 páginas",
+      quantity: 7,
+      unitPrice: 11.80,
+      gross: 82.60,
+      payment: "PIX",
+      discount: 0.05,
+      discountValue: 4.13,
+      final: 78.47
+    },
+    {
+      id: "VND-014",
+      date: "2026-06-14",
+      product: "Marca texto Amarelo",
+      quantity: 14,
+      unitPrice: 9.10,
+      gross: 127.40,
+      payment: "Cartão",
+      discount: 0,
+      discountValue: 0,
+      final: 127.40
+    },
+    {
+      id: "VND-015",
+      date: "2026-06-15",
+      product: "Caneta esferográfica Vermelha",
+      quantity: 185,
+      unitPrice: 1.80,
+      gross: 333.00,
+      payment: "Cartão",
+      discount: 0,
+      discountValue: 0,
+      final: 333.00
+    }
+  ];
+
+  let currentPayment = "Todos";
+  let searchTerm = "";
+  let sortColumn = "date";
+  let sortDirection = "asc";
+
+  let paymentChart = null;
+  let productChart = null;
+
+  const money = value =>
+    Number(value).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+  const paymentColors = {
+    PIX: "#22c55e",
+    "Cartão": "#3b82f6",
+    Dinheiro: "#f59e0b"
+  };
+
+  function filteredSales() {
+    return sales.filter(item => {
+
+      const paymentOK =
+        currentPayment === "Todos" ||
+        item.payment === currentPayment;
+
+      const search = searchTerm.trim().toLowerCase();
+
+      const searchOK =
+        !search ||
+        item.id.toLowerCase().includes(search) ||
+        item.product.toLowerCase().includes(search) ||
+        item.payment.toLowerCase().includes(search);
+
+      return paymentOK && searchOK;
+    });
+  }
+
+  function updateKPIs() {
+
+    const data = filteredSales();
+
+    const total = data.reduce(
+      (sum, item) => sum + item.final,
+      0
+    );
+
+    const quantity = data.length;
+
+    const ticket =
+      quantity > 0 ? total / quantity : 0;
+
+    document.getElementById("totalFaturado").textContent =
+      money(total);
+
+    document.getElementById("ticketMedio").textContent =
+      money(ticket);
+
+    document.getElementById("quantidadeVendas").textContent =
+      quantity;
+
+    document.getElementById("status").textContent =
+      currentPayment === "Todos"
+        ? "● Todos os pagamentos"
+        : "● Filtro: " + currentPayment;
+
+    document.getElementById("paymentChartLabel").textContent =
+      currentPayment;
+  }
+
+  function updatePaymentChart() {
+
+    const ctx =
+      document.getElementById("paymentChart").getContext("2d");
+
+    const payments = ["PIX", "Cartão", "Dinheiro"];
+
+    const values = payments.map(payment => {
+
+      return sales
+        .filter(item => {
+
+          if (currentPayment === "Todos") {
+            return item.payment === payment;
+          }
+
+          return (
+            item.payment === payment &&
+            item.payment === currentPayment
+          );
+
+        })
+        .reduce(
+          (sum, item) => sum + item.final,
+          0
+        );
+
+    });
+
+    if (paymentChart) {
+      paymentChart.destroy();
+    }
+
+    paymentChart = new Chart(ctx, {
+
+      type: "doughnut",
+
+      data: {
+        labels: payments,
+        datasets: [{
+          data: values,
+          backgroundColor: [
+            paymentColors.PIX,
+            paymentColors["Cartão"],
+            paymentColors.Dinheiro
+          ],
+          borderColor: "#101a2b",
+          borderWidth: 5,
+          hoverOffset: 14
+        }]
+      },
+
+      options: {
+
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "68%",
+
+        plugins: {
+
+          legend: {
+            position: "bottom",
+            labels: {
+              color: "#cbd5e1",
+              padding: 18,
+              usePointStyle: true
+            }
+          },
+
+          tooltip: {
+
+            callbacks: {
+
+              label: context => {
+
+                const total =
+                  context.dataset.data.reduce(
+                    (a, b) => a + b,
+                    0
+                  );
+
+                const percentage =
+                  total > 0
+                    ? ((context.raw / total) * 100).toFixed(1)
+                    : 0;
+
+                return (
+                  " " +
+                  money(context.raw) +
+                  " (" +
+                  percentage +
+                  "%)"
+                );
+
+              }
+
+            }
+
+          }
+
+        },
+
+        onClick: (event, elements) => {
+
+          if (!elements.length) return;
+
+          const payment =
+            payments[elements[0].index];
+
+          setPayment(
+            currentPayment === payment
+              ? "Todos"
+              : payment
+          );
+
+        }
+
+      }
+
+    });
+
+  }
+
+  function updateProductChart() {
+
+    const ctx =
+      document.getElementById("productChart").getContext("2d");
+
+    const data = filteredSales();
+
+    const products = {};
+
+    data.forEach(item => {
+
+      if (!products[item.product]) {
+        products[item.product] = 0;
+      }
+
+      products[item.product] += item.quantity;
+
+    });
+
+    const labels = Object.keys(products);
+    const values = Object.values(products);
+
+    if (productChart) {
+      productChart.destroy();
+    }
+
+    productChart = new Chart(ctx, {
+
+      type: "bar",
+
+      data: {
+
+        labels,
+
+        datasets: [{
+          label: "Unidades vendidas",
+          data: values,
+          backgroundColor: "#2196f3",
+          borderColor: "#60a5fa",
+          borderWidth: 1,
+          borderRadius: 7,
+          maxBarThickness: 55
+        }]
+
+      },
+
+      options: {
+
+        responsive: true,
+        maintainAspectRatio: false,
+
+        scales: {
+
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: "#94a3b8",
+              maxRotation: 35
+            }
+          },
+
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: "rgba(148,163,184,.10)"
+            },
+            ticks: {
+              color: "#94a3b8",
+              precision: 0
+            }
+          }
+
+        },
+
+        plugins: {
+
+          legend: {
+            display: false
+          },
+
+          tooltip: {
+
+            callbacks: {
+
+              label: context =>
+                ` ${context.raw} unidades`
+
+            }
+
+          }
+
+        }
+
+      }
+
+    });
+
+  }
+
+  function updateTable() {
+
+    const tbody =
+      document.getElementById("tableBody");
+
+    let data = filteredSales();
+
+    data.sort((a, b) => {
+
+      let A = a[sortColumn];
+      let B = b[sortColumn];
+
+      if (typeof A === "string") {
+        A = A.toLowerCase();
+        B = B.toLowerCase();
+      }
+
+      if (A < B) {
+        return sortDirection === "asc" ? -1 : 1;
+      }
+
+      if (A > B) {
+        return sortDirection === "asc" ? 1 : -1;
+      }
+
+      return 0;
+
+    });
+
+    if (!data.length) {
+
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty">
+            Nenhuma venda encontrada.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+    tbody.innerHTML = data.map(item => {
+
+      let paymentClass = "pix";
+
+      if (item.payment === "Cartão") {
+        paymentClass = "cartao";
+      }
+
+      if (item.payment === "Dinheiro") {
+        paymentClass = "dinheiro";
+      }
+
+      const date =
+        new Date(item.date + "T00:00:00")
+          .toLocaleDateString("pt-BR");
+
+      return `
+        <tr>
+
+          <td>
+            <strong>${item.id}</strong>
+          </td>
+
+          <td>${date}</td>
+
+          <td>${item.product}</td>
+
+          <td>${item.quantity}</td>
+
+          <td>${money(item.unitPrice)}</td>
+
+          <td>${money(item.gross)}</td>
+
+          <td>
+            <span class="payment ${paymentClass}">
+              ${item.payment}
+            </span>
+          </td>
+
+          <td class="discount">
+            ${
+              item.discount > 0
+                ? (item.discount * 100).toFixed(0) + "%"
+                : "—"
+            }
+          </td>
+
+          <td class="final-value">
+            ${money(item.final)}
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+
+  }
+
+  function setPayment(payment) {
+
+    currentPayment = payment;
+
+    document
+      .querySelectorAll(".filter-btn")
+      .forEach(button => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.payment === payment
+        );
+
+      });
+
+    updateDashboard();
+
+  }
+
+  function updateDashboard() {
+
+    updateKPIs();
+    updatePaymentChart();
+    updateProductChart();
+    updateTable();
+
+  }
+
+  document
+    .querySelectorAll(".filter-btn")
+    .forEach(button => {
+
+      button.addEventListener("click", () => {
+
+        setPayment(
+          button.dataset.payment
+        );
+
+      });
+
+    });
+
+  document
+    .getElementById("search")
+    .addEventListener("input", event => {
+
+      searchTerm = event.target.value;
+
+      updateTable();
+
+    });
+
+  document
+    .querySelectorAll("th[data-sort]")
+    .forEach(th => {
+
+      th.addEventListener("click", () => {
+
+        const column =
+          th.dataset.sort;
+
+        if (sortColumn === column) {
+
+          sortDirection =
+            sortDirection === "asc"
+              ? "desc"
+              : "asc";
+
+        } else {
+
+          sortColumn = column;
+          sortDirection = "asc";
+
+        }
+
+        updateTable();
+
+      });
+
+    });
+
+  updateDashboard();
+
+</script>
+
+</body>
+</html>
